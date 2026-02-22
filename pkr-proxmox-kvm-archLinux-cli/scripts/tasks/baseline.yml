@@ -1,0 +1,62 @@
+---
+- name: Upgrade All Packages To The Latest Version
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: true
+
+- name: Install Core Dependencies, Clean APT, & Remove Old Programs
+  apt:
+    name: "{{ item }}"
+    state: present
+    install_recommends: true
+    autoremove: true
+    autoclean: true
+  loop:
+    - apt-transport-https
+    - ca-certificates
+    - cloud-init
+    - curl
+    - gnupg-agent
+    - htop
+    - linux-headers-amd64
+    - linux-image-amd64
+    - ncdu
+    - sudo
+    - tmux
+    - unattended-upgrades
+    - wget
+
+- name: Set APT periodic update settings
+  copy:
+    dest: /etc/apt/apt.conf.d/10periodic
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Set root password to never expire
+  user:
+    name: root
+    expires: -1
+
+- name: Set SuperUser password to never expire
+  user:
+    name: "{{ superuser_name }}"
+    expires: -1
+
+- name: Set /bin/bash as default shell for new users
+  lineinfile:
+    path: /etc/default/useradd
+    regexp: '^SHELL='
+    line: 'SHELL=/bin/bash'
+    create: true
+
+- name: Set /bin/bash for existing users
+  user:
+    name: "{{ item }}"
+    shell: /bin/bash
+  loop:
+    - "{{ superuser_name }}"
+    - root    
