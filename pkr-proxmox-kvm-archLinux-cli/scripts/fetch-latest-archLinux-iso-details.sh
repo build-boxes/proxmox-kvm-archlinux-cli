@@ -2,7 +2,8 @@
 # Script to fetch the latest ArchLinux ISO details (URL and checksum)
 set -e
 
-ARCHLINUX_MIRROR_BASE="https://mirror.csclub.uwaterloo.ca/archlinux/iso/"
+#ARCHLINUX_MIRROR_BASE="https://mirror.csclub.uwaterloo.ca/archlinux/iso/"
+ARCHLINUX_MIRROR_BASE="https://mirrors.mit.edu/archlinux/iso/"
 DYNAMIC_VARS_FILE="./vars/generated-archlinux-vars.pkrvars.hcl"
 
 ARCHLINUX_MIRROR=$(curl -s ${ARCHLINUX_MIRROR_BASE} | grep -oP "2026\.\d+\.\d+/" | tail -n1)

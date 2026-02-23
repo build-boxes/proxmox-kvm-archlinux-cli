@@ -26,7 +26,7 @@ source "proxmox-iso" "archlinux" {
   }
   scsi_controller         = "virtio-scsi-single"
   qemu_agent              = true
-  cloud_init              = true
+  cloud_init              = var.cloud_init
   cloud_init_storage_pool = var.storage_pool
 
   network_adapters {

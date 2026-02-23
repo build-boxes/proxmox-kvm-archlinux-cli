@@ -141,6 +141,11 @@ variable "locale" {
   default = "en_CA.UTF-8"
 }
 
+variable "mirrors_country" {
+  type    = string
+  default = "CA"
+}
+
 variable "keymap" {
   type    = string
   default = "us"
@@ -175,4 +180,21 @@ variable "superuser_ssh_pub_key" {
   type        = string
   description = "Superuser SSH public key for cloud-init configuration"
   default     = ""
+}
+
+variable "lvm_root" {
+  type        = string
+  description = "lvm root partition name"
+  default     = "lvm--root"
+}
+
+variable "lvm_swap" {
+  type        = string
+  description = "lvm swap partition name"
+  default     = "lvm--swap"
+}
+
+variable "cloud_init" {
+  type = bool
+  default = false
 }
