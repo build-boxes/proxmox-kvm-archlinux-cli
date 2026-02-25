@@ -1,0 +1,44 @@
+---
+- name: Ensure /etc/apt/keyrings directory exists with correct permissions
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+  become: true
+
+- name: Update apt package cache - before getting flatpak packages
+  ansible.builtin.apt:
+    update_cache: yes
+  become: true
+
+- name: Add flatpak repo
+  become: true
+  become_method: sudo
+  become_flags: "su -c"
+  ansible.builtin.shell:
+    cmd: >
+      /usr/bin/flatpak remote-add --if-not-exists
+      flathub https://dl.flathub.org/repo/flathub.flatpakrepo;
+
+- name: Update user's .bashrc with /usr/sbin in PATH
+  become: true
+  become_method: sudo
+  become_flags: "su -c"
+  ansible.builtin.shell:
+    cmd: |
+      USERID="{{ superuser_name }}"
+      BASHRC="/home/$USERID/.bashrc"
+      if [ -d "/home/$USERID" ] && [ -f "$BASHRC" ]; then
+        grep -q "/usr/sbin" "$BASHRC" || echo 'export PATH="/usr/sbin:$PATH"' >> "$BASHRC"
+      fi
+
+# Following should always be the last statement in last Ansible task, Make sure dpkg locks are not ongoing.
+- name: Wait until no process is locking dpkg, and all updates are complete, before terminating this build....
+  ansible.builtin.shell: |
+    ! sudo fuser /var/lib/dpkg/lock > /dev/null 2>&1
+  register: lock_check
+  retries: 90
+  delay: 2
+  until: lock_check.rc == 0
