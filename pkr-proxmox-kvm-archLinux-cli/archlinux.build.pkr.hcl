@@ -47,6 +47,26 @@ mkdir -p /mnt/boot
 mount "$DISK"1 /mnt/boot
 swapon /dev/$VGNAME/$LVSWAP
 
+# Save Environment Variables for use in chroot
+mkdir -p /mnt/root/
+cat > /mnt/root/envvars.sh <<EOF_ENV
+export VGNAME="$VGNAME"
+export LVROOT="$LVROOT"
+export LVSWAP="$LVSWAP"
+export SUPERUSER="$SUPERUSER"
+export SUPERPASS='$SUPERPASS'
+export SSH_PUBKEY='$SSH_PUBKEY'
+export HOSTNAME="$HOSTNAME"
+export TIMEZONE="$TIMEZONE"
+export LOCALE="$LOCALE"
+export KEYMAP="$KEYMAP"
+export SWAPSIZE="$SWAPSIZE"
+export ROOTPASS="$ROOTPASS"
+export MIRRORS_COUNTRY="$MIRRORS_COUNTRY"
+export DISK="$DISK"
+EOF_ENV
+chmod +x /mnt/root/envvars.sh
+
 # Update Mirrors
 curl -o /etc/pacman.d/mirrorlist "https://archlinux.org/mirrorlist/?country=$MIRRORS_COUNTRY&protocol=https&use_mirror_status=on"
 sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist
@@ -80,6 +100,10 @@ echo ">>> Done -- Inside arch-chroot...."
 set -eu
 echo ">>> Done -- Inside arch-chroot - -eu...."
 
+# Retrive environment variables from the file created before chroot
+source /root/envvars.sh
+echo ">>> Done -- Inside arch-chroot - sourced envvars.sh...."
+echo ">>> EnvVars is: VGNAME=$VGNAME, LVROOT=$LVROOT, LVSWAP=$LVSWAP, SUPERUSER=$SUPERUSER, HOSTNAME=$HOSTNAME, TIMEZONE=$TIMEZONE, LOCALE=$LOCALE, KEYMAP=$KEYMAP, SWAPSIZE=$SWAPSIZE, ROOTPASS=******, MIRRORS_COUNTRY=$MIRRORS_COUNTRY"
 
 # System config (timezone, locale, vconsole)
 ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
