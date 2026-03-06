@@ -121,11 +121,17 @@ echo ">>> Done -- Inside arch-chroot - hwclock, locale-gen...."
 # This inserts lvm2 if not already present and ensures correct order.
 #sed -i 's/^HOOKS=(\(.*\)filesystems/\1lvm2 filesystems/' /etc/mkinitcpio.conf || true
 grep -q "lvm2" /etc/mkinitcpio.conf || sed -i 's/filesystems/lvm2 filesystems/' /etc/mkinitcpio.conf
+echo ">>> --- HOOKS in mkinitcpio.conf after modification:"
+cat /etc/mkinitcpio.conf
+echo ">>> ------------------------------"
 echo ">>> Done -- Inside arch-chroot - sed HOOKS...."
 
 # Build initramfs images and capture output for debugging
 mkinitcpio -P 2>&1 | tee /tmp/mkinitcpio.log
-echo ">>> Done -- Inside arch-chroot - mkinitcpio...."
+echo ">>> --- Build initramfs - mkinitcpio output:"
+cat /tmp/mkinitcpio.log
+echo ">>> ------------------------------"
+echo ">>> Done -- Inside arch-chroot - Build initramfs - mkinitcpio...."
 
 # Install GRUB for UEFI
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
