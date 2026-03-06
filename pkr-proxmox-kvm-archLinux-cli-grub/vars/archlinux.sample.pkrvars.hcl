@@ -27,13 +27,15 @@ iso_file         = ""
 
 archlinux_root_password = "simplePassW0rd" # Used during initial Packer login. It will be changed later on.
 # encoded password for "packer". Used $ echo "packer" | mkpasswd --method=SHA-512 --rounds=4096
-archlinux_root_password = "$6$rounds=4096$fjTsVA3mR6pErezN$TmCYfzgj/xHuPQzkOtpg6sqdZRl5ZPWpHpj2k4316wkm4jiTiAzk8h2AUSUhypKndrGfqrJpLVo6FH/aFurIC1"
+archlinux_root_new_password = "$6$rounds=4096$fjTsVA3mR6pErezN$TmCYfzgj/xHuPQzkOtpg6sqdZRl5ZPWpHpj2k4316wkm4jiTiAzk8h2AUSUhypKndrGfqrJpLVo6FH/aFurIC1"
+archlinux_root_new_password_plain  = "packer"
 
 # superuser details for (cloud-cfg file)
 superuser_name     = "terraform"
 superuser_gecos    = "Terra Admin"
 # encoded password for "packer". Used $ echo "packer" | mkpasswd --method=SHA-512 --rounds=4096
 superuser_password = "$6$rounds=4096$fjTsVA3mR6pErezN$TmCYfzgj/xHuPQzkOtpg6sqdZRl5ZPWpHpj2k4316wkm4jiTiAzk8h2AUSUhypKndrGfqrJpLVo6FH/aFurIC1"
+superuser_password_plain = "packer"
 superuser_ssh_pub_key = "ssh-rsa AAAAB3NzaC1ycXXXXXzRs= terraform@ServerName"
 swap_size="750M"
 timezone="America/Toronto"

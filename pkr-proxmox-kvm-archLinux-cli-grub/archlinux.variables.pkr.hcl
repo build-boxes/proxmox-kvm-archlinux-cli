@@ -170,6 +170,13 @@ variable "superuser_password" {
   default     = ""
 }
 
+variable "superuser_password_plain" {
+  type        = string
+  description = "Superuser password in plain text"
+  #sensitive   = true
+  default     = ""
+}
+
 variable "superuser_ssh_pub_key" {
   type        = string
   description = "Superuser SSH public key for cloud-init configuration"
@@ -185,7 +192,14 @@ variable "archlinux_root_password" {
 
 variable "archlinux_root_new_password" {
   type        = string
-  description = "Root password for Arch Linux. For use in the built image, after build is completed."
+  description = "Root password for Arch Linux in encrypted format. For use in the built image, after build is completed."
+  #sensitive   = true
+  default     = "packer"
+}
+
+variable "archlinux_root_new_password_plain" {
+  type        = string
+  description = "Root password for Arch Linux in plain text. For use in the built image, after build is completed."
   #sensitive   = true
   default     = "packer"
 }
