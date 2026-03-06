@@ -178,7 +178,14 @@ variable "superuser_ssh_pub_key" {
 
 variable "archlinux_root_password" {
   type        = string
-  description = "Root password for Arch Linux installation"
+  description = "Root password for Arch Linux installation, for use by Packer during the build process"
+  #sensitive   = true
+  default     = "packer"
+}
+
+variable "archlinux_root_new_password" {
+  type        = string
+  description = "Root password for Arch Linux. For use in the built image, after build is completed."
   #sensitive   = true
   default     = "packer"
 }

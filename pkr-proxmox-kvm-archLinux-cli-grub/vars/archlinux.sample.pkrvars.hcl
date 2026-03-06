@@ -25,6 +25,7 @@ iso_file         = ""
 #iso_checksum     = "sha512:1ada40e4c938528dd8e6b9c88c19b978a0f8e2a6757b9cf634987012d37ec98503ebf3e05acbae9be4c0ec00b52e8852106de1bda93a2399d125facea45400f8"
 ##
 
+archlinux_root_password = "simplePassW0rd" # Used during initial Packer login. It will be changed later on.
 # encoded password for "packer". Used $ echo "packer" | mkpasswd --method=SHA-512 --rounds=4096
 archlinux_root_password = "$6$rounds=4096$fjTsVA3mR6pErezN$TmCYfzgj/xHuPQzkOtpg6sqdZRl5ZPWpHpj2k4316wkm4jiTiAzk8h2AUSUhypKndrGfqrJpLVo6FH/aFurIC1"
 

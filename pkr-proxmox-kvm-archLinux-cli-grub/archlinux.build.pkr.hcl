@@ -16,7 +16,7 @@ LVSWAP=${var.lvm_swap}
 SUPERUSER=${var.superuser_name}
 SUPERPASS='${var.superuser_password}'
 SSH_PUBKEY='${var.superuser_ssh_pub_key}'
-ROOTPASS='${var.archlinux_root_password}'
+ROOTPASS='${var.archlinux_root_new_password}'
 HOSTNAME=${var.hostname}
 TIMEZONE=${var.timezone}
 LOCALE=${var.locale}
@@ -122,7 +122,8 @@ echo ">>> Done -- Inside arch-chroot - hwclock, locale-gen...."
 # Ensure lvm2 is in mkinitcpio HOOKS before filesystems
 # This inserts lvm2 if not already present and ensures correct order.
 #sed -i 's/^HOOKS=(\(.*\)filesystems/\1lvm2 filesystems/' /etc/mkinitcpio.conf || true
-grep -q "lvm2" /etc/mkinitcpio.conf && sed -i '/^HOOKS=.*filesystems/s/filesystems/lvm2 &/' /etc/mkinitcpio.conf
+##grep -q "lvm2" /etc/mkinitcpio.conf && sed -i '/^HOOKS=.*filesystems/s/filesystems/lvm2 &/' /etc/mkinitcpio.conf
+grep -q "^HOOKS=.*lvm2" /etc/mkinitcpio.conf || sed -i '/^HOOKS=.*filesystems/s/filesystems/lvm2 &/' /etc/mkinitcpio.conf
 echo ">>> --- HOOKS in mkinitcpio.conf after modification:"
 cat /etc/mkinitcpio.conf
 echo ">>> ------------------------------"
@@ -141,9 +142,6 @@ echo ">>> Done -- Inside arch-chroot - grub-install...."
 
 
 # Configure GRUB kernel parameters
-echo ">>> --- GRUB_CMDLINE_LINUX before modification:"
-cat /etc/default/grub
-echo ">>> ------------------------------"
 sed -i 's/^GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX="root=\/dev\/'"$VGNAME"'\/'"$LVROOT"' rw console=ttyS0,115200n8"/' /etc/default/grub
 echo 'GRUB_PRELOAD_MODULES="lvm"' >> /etc/default/grub
 echo ">>> Done -- Inside arch-chroot - Configure GRUB...."
