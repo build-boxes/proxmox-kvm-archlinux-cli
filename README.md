@@ -52,23 +52,25 @@ If you need step-by-step execution details:
     ```
     * This will produce a very verbose log file, useful for troubleshooting.  
 
-
-
----
-## Update Needed Below This
-
 ## Usage 
 1. Preparing for Image Build
-    1. For faster build times, the ISO was pre-downloaded into Proxmox server. The Debian13 Source code binary(iso) used in the Packer script was downloaded from following, and its SHA512 Sum link.
-        - General Repo Page, scroll to the bottom to see the artifacts. [https://get.debian.org/images/release/13.0.0/amd64/iso-cd/](https://get.debian.org/images/release/13.0.0/amd64/iso-cd/)
-        - ISO Link - [https://get.debian.org/images/release/13.0.0/amd64/iso-cd/debian-13.0.0-amd64-netinst.iso](https://get.debian.org/images/release/13.0.0/amd64/iso-cd/debian-13.0.0-amd64-netinst.iso)
-        - SHA512 Sum Link - [https://get.debian.org/images/release/13.0.0/amd64/iso-cd/SHA512SUMS](https://get.debian.org/images/release/13.0.0/amd64/iso-cd/SHA512SUMS)
+    1. For faster build times, the ISO was pre-downloaded into Proxmox server. The ArchLinux Source code binary(iso) used in the Packer script was downloaded from following, and its SHA256 Sum link.
+        - General Repo Page, scroll to the bottom to see the artifacts. [https://mirrors.mit.edu/archlinux/iso/2026.02.01/](https://mirrors.mit.edu/archlinux/iso/2026.02.01)
+        - ISO Link Base - [https://mirrors.mit.edu/archlinux/iso/](https://mirrors.mit.edu/archlinux/iso/)
+        - SHA256 Sum Link - [https://mirrors.mit.edu/archlinux/iso/2026.02.01/sha256sums.txt](https://mirrors.mit.edu/archlinux/iso/2026.02.01/sha256sums.txt)
+> **❗ Important:**
+> 
+> - By default this Packer code assumes that the Bash Script "[./pkr-proxmox-kvm-archLinux-cli-grub/scripts/ fetch-latest-archLinux-iso-details.sh](./pkr-proxmox-kvm-archLinux-cli-grub/scripts/ fetch-latest-archLinux-iso-details.sh)" will be executed before the following steps.
+> - This script automatically updates the ISO download link and SHA256 Checksum value, used in iso file verification.
+> - This script assumes we are downloading 'archlinux-2026.XX.XX-x86_64.iso"
+> - After 2026 you will need to update this script to reflect other iso names.
+  
     1. An actual WebServer was available and used in Packer Preseeding, rather then using the default Packer mechanism of inbuilt temporary webserver.
-        - To do the same for yourself, just copy all files in the subfolder ./pkr-proxmox-kvm-debian13/http to the actual webserver. Then change the ./pkr-proxmox-kvm-debian13/vars/debian_13.pkrvars.hcl file accordingly.
+        - To do the same for yourself, just copy all files in the subfolder ./pkr-proxmox-kvm-archLinux-cli-grub/http to the actual webserver. Then change the ./pkr-proxmox-kvm-archLinux-cli-grub/vars/archlinux.actual.pkrvars.hcl file accordingly.
 1. Image (KVM Template)  Build - Using Packer
-    1. Change Directory into ./pkr-proxmox-kvm-debian13-cli
+    1. Change Directory into ./pkr-proxmox-kvm-archLinux-cli-grub
         ```
-        cd ./pkr-proxmox-kvm-debian13-cli
+        cd ./pkr-proxmox-kvm-archLinux-cli-grub
         ```
     1. Initialize Packer.
         ```
@@ -76,21 +78,23 @@ If you need step-by-step execution details:
         ```
     1. Launch Packer Build of Image (KVM Template) with your custom parameters or the Default sample.
         ```
-        packer build -var-file vars/debian_13.actual.pkrvars.hcl -var "proxmox_api_password=Password#01" .
+        packer build -var-file vars/archlinux.actual.pkrvars.hcl -var "proxmox_api_password=Password#01" .
         ```
         OR, when using dynamic ISO download:
         ```
-        packer build -var-file vars/debian_13.actual.pkrvars.hcl -var-file vars/generated-debian13-vars.pkrvars.hcl  -var "proxmox_api_password=Password#01" .
+        packer build -var-file vars/archlinux.actual.pkrvars.hcl -var-file vars/generated-archlinux-vars.pkrvars.hcl -var "proxmox_api_password=Password#01" .
         ```
     1. The Image (KVM Template) should now be ready on the Proxmox server.
+---
+## Following is ToDo. Not Implemented Yet.
 1. VM Instance Creation - Using Terraform
-    1. Change Directory into ../tfmod-proxmox-kvm-debian13-cli/examples/<<any-one>>
+    1. Change Directory into ../tfmod-proxmox-kvm-archlinux-cli/examples/<<any-one>>
         ```
-        cd ../tf-proxmox-kvm-debian13-cli/examples/bash-ahc
+        cd ../tf-proxmox-kvm-archlinux-cli/examples/bash-ahc
         ```
         OR
 
-        Copy the contents of the Directory /tfmod-proxmox-kvm-debian13-cli/examples/<<any-one>> into a new sub-folder anywhere (let us assume it is /home/${USER}/tf-example ) on your host computer. Change into your sub-folder.
+        Copy the contents of the Directory /tfmod-proxmox-kvm-archlinux-cli/examples/<<any-one>> into a new sub-folder anywhere (let us assume it is /home/${USER}/tf-example ) on your host computer. Change into your sub-folder.
         ```
         cd /home/${USER}/tf-example
         ```

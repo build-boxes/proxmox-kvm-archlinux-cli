@@ -75,12 +75,6 @@ variable "proxmox_node" {
   default = ""
 }
 
-variable "archlinux_root_password" {
-  type      = string
-  #sensitive = true
-  default   = "packer"
-}
-
 variable "iso_file" {
   type    = string
   description = "ISO file path in Proxmox storage"
@@ -180,6 +174,13 @@ variable "superuser_ssh_pub_key" {
   type        = string
   description = "Superuser SSH public key for cloud-init configuration"
   default     = ""
+}
+
+variable "archlinux_root_password" {
+  type        = string
+  description = "Root password for Arch Linux installation"
+  #sensitive   = true
+  default     = "packer"
 }
 
 variable "lvm_root" {

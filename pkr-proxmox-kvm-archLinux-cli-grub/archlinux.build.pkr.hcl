@@ -16,6 +16,7 @@ LVSWAP=${var.lvm_swap}
 SUPERUSER=${var.superuser_name}
 SUPERPASS='${var.superuser_password}'
 SSH_PUBKEY='${var.superuser_ssh_pub_key}'
+ROOTPASS='${var.archlinux_root_password}'
 HOSTNAME=${var.hostname}
 TIMEZONE=${var.timezone}
 LOCALE=${var.locale}
@@ -56,6 +57,7 @@ export LVSWAP="$LVSWAP"
 export SUPERUSER="$SUPERUSER"
 export SUPERPASS='$SUPERPASS'
 export SSH_PUBKEY='$SSH_PUBKEY'
+export ROOTPASS='$ROOTPASS'
 export HOSTNAME="$HOSTNAME"
 export TIMEZONE="$TIMEZONE"
 export LOCALE="$LOCALE"
@@ -166,6 +168,15 @@ useradd -m -G wheel -s /bin/bash $SUPERUSER
 echo "$SUPERUSER:$SUPERPASS" | chpasswd
 echo ">>> Done -- Inside arch-chroot - User creation...."
 
+# Set root password and prevent expiration
+echo "root:$ROOTPASS" | chpasswd
+chage -m 0 -M -1 -E -1 root
+echo ">>> Done -- Inside arch-chroot - Root password setup...."
+
+# Prevent superuser password expiration
+chage -m 0 -M -1 -E -1 $SUPERUSER
+echo ">>> Done -- Inside arch-chroot - Prevent superuser password expiration...."
+
 # Sudo rules
 printf '%%wheel ALL=(ALL:ALL) ALL\n' > /etc/sudoers.d/10-wheel
 chmod 440 /etc/sudoers.d/10-wheel
@@ -180,6 +191,11 @@ echo "$SSH_PUBKEY" > /home/$SUPERUSER/.ssh/authorized_keys
 chmod 600 /home/$SUPERUSER/.ssh/authorized_keys
 chown -R $SUPERUSER:$SUPERUSER /home/$SUPERUSER/.ssh
 echo ">>> Done -- Inside arch-chroot - SSH key...."
+
+# Configure SSH to allow password authentication
+sed -i 's/^#PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+echo ">>> Done -- Inside arch-chroot - SSH password authentication...."
 
 # Enable services
 systemctl enable NetworkManager
