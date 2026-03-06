@@ -121,8 +121,6 @@ echo ">>> Done -- Inside arch-chroot - hwclock, locale-gen...."
 
 # Ensure lvm2 is in mkinitcpio HOOKS before filesystems
 # This inserts lvm2 if not already present and ensures correct order.
-#sed -i 's/^HOOKS=(\(.*\)filesystems/\1lvm2 filesystems/' /etc/mkinitcpio.conf || true
-##grep -q "lvm2" /etc/mkinitcpio.conf && sed -i '/^HOOKS=.*filesystems/s/filesystems/lvm2 &/' /etc/mkinitcpio.conf
 grep -q "^HOOKS=.*lvm2" /etc/mkinitcpio.conf || sed -i '/^HOOKS=.*filesystems/s/filesystems/lvm2 &/' /etc/mkinitcpio.conf
 echo ">>> --- HOOKS in mkinitcpio.conf after modification:"
 cat /etc/mkinitcpio.conf
@@ -139,7 +137,6 @@ echo ">>> Done -- Inside arch-chroot - Build initramfs - mkinitcpio...."
 # Install GRUB for UEFI
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 echo ">>> Done -- Inside arch-chroot - grub-install...."
-
 
 # Configure GRUB kernel parameters
 sed -i 's/^GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX="root=\/dev\/'"$VGNAME"'\/'"$LVROOT"' rw console=ttyS0,115200n8"/' /etc/default/grub
@@ -175,6 +172,16 @@ echo ">>> Done -- Inside arch-chroot - Root password setup...."
 chage -m 0 -M -1 -E -1 $SUPERUSER
 echo ">>> Done -- Inside arch-chroot - Prevent superuser password expiration...."
 
+# Allow Root to login at Prompt or SSH (by default root login is disabled in Arch)
+sed -i 's/^#PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+echo ">>> Done -- Inside arch-chroot - Permit root login...."
+
+# Configure SSH to allow password authentication (All Users)
+sed -i 's/^#PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+sed -i 's/^PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+echo ">>> Done -- Inside arch-chroot - SSH password authentication (All Users) ...."
+
 # Sudo rules
 printf '%%wheel ALL=(ALL:ALL) ALL\n' > /etc/sudoers.d/10-wheel
 chmod 440 /etc/sudoers.d/10-wheel
@@ -190,17 +197,11 @@ chmod 600 /home/$SUPERUSER/.ssh/authorized_keys
 chown -R $SUPERUSER:$SUPERUSER /home/$SUPERUSER/.ssh
 echo ">>> Done -- Inside arch-chroot - SSH key...."
 
-# Configure SSH to allow password authentication
-sed -i 's/^#PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
-sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
-echo ">>> Done -- Inside arch-chroot - SSH password authentication...."
-
 # Enable services
 systemctl enable NetworkManager
 systemctl enable sshd
 # systemctl enable alsa-restore
 # systemctl enable alsa-state
-# systemctl enable qemu-guest-agent
 echo ">>> Done -- Inside arch-chroot - Enable services...."
 # ensure qemu-guest-agent unit exists
 if [ -f /usr/lib/systemd/system/qemu-guest-agent.service ]; then
@@ -231,7 +232,7 @@ echo ">>> Done -- Inside arch-chroot - Enable qemu-guest-agent...."
 #     systemctl enable cloud-config.service
 #     systemctl enable cloud-final.service
 # else
-#     echo "WARNING: cloud-init is not installed; skipping enable"
+#     echo ">>> WARNING: cloud-init is not installed; skipping enable"
 # fi
 
 # Prepare NoCloud datasource directory for Proxmox
@@ -282,26 +283,26 @@ echo ">>> Done -- Inside arch-chroot - Automatic updates...."
 CHROOTEOF
 echo ">>> Done -- chroot - Outside CHROOT now..."
 
-# # Start - Handle Cloud-init inside the New CHRooted Filesystem.
-# arch-chroot /mnt /bin/bash -c 'systemd-machine-id-setup'
-# mkdir -p /mnt/etc/cloud
-# touch /mnt/etc/cloud/cloud.cfg
-# # reload generators and unit files for the target root
-# systemctl --root=/mnt daemon-reload || true
-# # enable cloud-init units on the target root (creates the symlinks)
-# systemctl --root=/mnt enable cloud-init-local.service cloud-init.service cloud-config.service cloud-final.service || true
-# # if generator exists in the installed tree, run it inside the chroot to create units
-# if [ -x /mnt/usr/lib/systemd/system-generators/cloud-init ]; then
-#   chroot /mnt /usr/lib/systemd/system-generators/cloud-init
-#   # then reload and enable again
-#   systemctl --root=/mnt daemon-reload || true
-#   systemctl --root=/mnt enable cloud-init-local.service cloud-init.service cloud-config.service cloud-final.service || true
-# fi
-# ls -l /mnt/usr/lib/systemd/system | grep cloud || true
-# ls -l /mnt/etc/systemd/system/cloud-init.target.wants || true
-# systemctl --root=/mnt list-unit-files | grep cloud || true
-# echo ">>> Done -- Cloud-init handling..."
-# # End - Handle Cloud-init inside the New CHRooted Filesystem.
+# Start - Handle Cloud-init inside the New CHRooted Filesystem.
+arch-chroot /mnt /bin/bash -c 'systemd-machine-id-setup'
+mkdir -p /mnt/etc/cloud
+touch /mnt/etc/cloud/cloud.cfg
+# reload generators and unit files for the target root
+systemctl --root=/mnt daemon-reload || true
+# enable cloud-init units on the target root (creates the symlinks)
+systemctl --root=/mnt enable cloud-init-local.service cloud-init.service cloud-config.service cloud-final.service || true
+# if generator exists in the installed tree, run it inside the chroot to create units
+if [ -x /mnt/usr/lib/systemd/system-generators/cloud-init ]; then
+  chroot /mnt /usr/lib/systemd/system-generators/cloud-init
+  # then reload and enable again
+  systemctl --root=/mnt daemon-reload || true
+  systemctl --root=/mnt enable cloud-init-local.service cloud-init.service cloud-config.service cloud-final.service || true
+fi
+ls -l /mnt/usr/lib/systemd/system | grep cloud || true
+ls -l /mnt/etc/systemd/system/cloud-init.target.wants || true
+systemctl --root=/mnt list-unit-files | grep cloud || true
+echo ">>> Done -- Cloud-init handling..."
+# End - Handle Cloud-init inside the New CHRooted Filesystem.
 
 swapoff /dev/$VGNAME/$LVSWAP
 umount -R /mnt
