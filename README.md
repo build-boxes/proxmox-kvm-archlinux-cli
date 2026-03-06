@@ -9,8 +9,53 @@ ArchLinux CLI VM Packer Builder and Terraform Instance Manager (Module and Modul
 4. You will need to install Git client. [Git](https://git-scm.com/install/linux)
 5. Other then the above computer, you will need a Proxmox VE 8 or 9 Server to host the Virtual Machine. [Proxmox VE](https://www.proxmox.com/en/proxmox-ve), [Enabling Proxmox No-Subscription Library](https://www.youtube.com/watch?v=5j0Zb6x_hOk&t=720s)
 
+## Collecting Build Logs & Debugging
+In HashiCorp Packer, you can record the build output (including logs) to a file in a few different ways, depending on whether you want normal output or debug logs.
+
+1. Using PACKER_LOG and PACKER_LOG_PATH
+Packer has built-in environment variables for logging:
+    ```Bash
+    # Enable logging (1 = basic, debug = verbose)
+    export PACKER_LOG=1
+
+    # Save logs to a file
+    export PACKER_LOG_PATH=packer_build.log
+
+    # Run your build
+    packer build template.pkr.hcl
+    ```
+
+    * PACKER_LOG=1 → Enables logging (set to debug for more detail).  
+    * PACKER_LOG_PATH → Path to the file where logs will be written.  
+    * Output will still appear in the terminal and be saved to the file.  
+
+
+1. Redirecting Standard Output and Error
+If you just want to capture exactly what you see in the terminal:
+    ```Bash
+    packer build template.pkr.hcl | tee packer_output.log
+    ```
+
+    * tee writes output to both the terminal and the file.
+    * To capture errors too:
+
+    ```Bash
+    packer build template.pkr.hcl 2>&1 | tee packer_output.log
+    ```
+
+1. Using Debug Mode for Detailed Tracing
+If you need step-by-step execution details:
+    ```Bash
+    export PACKER_LOG=debug
+    export PACKER_LOG_PATH=packer_debug.log
+    packer build template.pkr.hcl
+    ```
+    * This will produce a very verbose log file, useful for troubleshooting.  
+
+
+
 ---
-# Update Needed Below This
+## Update Needed Below This
 
 ## Usage 
 1. Preparing for Image Build
@@ -71,4 +116,3 @@ ArchLinux CLI VM Packer Builder and Terraform Instance Manager (Module and Modul
         ```
         terraform destroy -auto-approve
         ```
-  
