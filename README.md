@@ -60,7 +60,7 @@ If you need step-by-step execution details:
         - SHA256 Sum Link - [https://mirrors.mit.edu/archlinux/iso/2026.02.01/sha256sums.txt](https://mirrors.mit.edu/archlinux/iso/2026.02.01/sha256sums.txt)
 > **❗ Important:**
 > 
-> - By default this Packer code assumes that the Bash Script "[./pkr-proxmox-kvm-archLinux-cli-grub/scripts/ fetch-latest-archLinux-iso-details.sh](./pkr-proxmox-kvm-archLinux-cli-grub/scripts/ fetch-latest-archLinux-iso-details.sh)" will be executed before the following steps.
+> - By default this Packer code assumes that the Bash Script [./pkr-proxmox-kvm-archLinux-cli-grub/scripts/ fetch-latest-archLinux-iso-details.sh](./pkr-proxmox-kvm-archLinux-cli-grub/scripts/ fetch-latest-archLinux-iso-details.sh) will be executed before the following steps.
 > - This script automatically updates the ISO download link and SHA256 Checksum value, used in iso file verification.
 > - This script assumes we are downloading 'archlinux-2026.XX.XX-x86_64.iso"
 > - After 2026 you will need to update this script to reflect other iso names.
