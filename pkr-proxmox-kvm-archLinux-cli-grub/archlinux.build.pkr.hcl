@@ -120,7 +120,7 @@ echo ">>> Done -- Inside arch-chroot - hwclock, locale-gen...."
 # Ensure lvm2 is in mkinitcpio HOOKS before filesystems
 # This inserts lvm2 if not already present and ensures correct order.
 #sed -i 's/^HOOKS=(\(.*\)filesystems/\1lvm2 filesystems/' /etc/mkinitcpio.conf || true
-grep -q "lvm2" /etc/mkinitcpio.conf || sed -i 's/filesystems/lvm2 filesystems/' /etc/mkinitcpio.conf
+grep -q "lvm2" /etc/mkinitcpio.conf && sed -i '/^HOOKS=.*filesystems/s/filesystems/lvm2 &/' /etc/mkinitcpio.conf
 echo ">>> --- HOOKS in mkinitcpio.conf after modification:"
 cat /etc/mkinitcpio.conf
 echo ">>> ------------------------------"
