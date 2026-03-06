@@ -133,16 +133,26 @@ echo ">>> Done -- Inside arch-chroot - grub-install...."
 
 
 # Configure GRUB kernel parameters
+echo ">>> --- GRUB_CMDLINE_LINUX before modification:"
+cat /etc/default/grub
+echo ">>> ------------------------------"
 sed -i 's/^GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX="root=\/dev\/'"$VGNAME"'\/'"$LVROOT"' rw console=ttyS0,115200n8"/' /etc/default/grub
 echo 'GRUB_PRELOAD_MODULES="lvm"' >> /etc/default/grub
 echo ">>> Done -- Inside arch-chroot - Configure GRUB...."
 
 # Optional: speed up boot by disabling OS prober
 sed -i "s/^#GRUB_DISABLE_OS_PROBER=.*/GRUB_DISABLE_OS_PROBER=true/" /etc/default/grub
+echo ">>> --- GRUB_CMDLINE_LINUX After modification:"
+cat /etc/default/grub
+echo ">>> ------------------------------"
 echo ">>> Done -- Inside arch-chroot - Disable OS prober...."
 
 # Generate GRUB config
 grub-mkconfig -o /boot/grub/grub.cfg
+echo ">>> --- GRUB.CFG generated:"
+cat /boot/grub/grub.cfg
+echo ">>> ------------------------------"
+
 echo ">>> Done -- Inside arch-chroot - Generate GRUB config...."
 
 # User
