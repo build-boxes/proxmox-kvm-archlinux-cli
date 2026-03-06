@@ -129,26 +129,33 @@ echo ">>> Done -- Inside arch-chroot - mkinitcpio...."
 
 # Install GRUB for UEFI
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+echo ">>> Done -- Inside arch-chroot - grub-install...."
+
 
 # Configure GRUB kernel parameters
 sed -i 's/^GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX="root=\/dev\/'"$VGNAME"'\/'"$LVROOT"' rw console=ttyS0,115200n8"/' /etc/default/grub
 echo 'GRUB_PRELOAD_MODULES="lvm"' >> /etc/default/grub
+echo ">>> Done -- Inside arch-chroot - Configure GRUB...."
 
 # Optional: speed up boot by disabling OS prober
 sed -i "s/^#GRUB_DISABLE_OS_PROBER=.*/GRUB_DISABLE_OS_PROBER=true/" /etc/default/grub
+echo ">>> Done -- Inside arch-chroot - Disable OS prober...."
 
 # Generate GRUB config
 grub-mkconfig -o /boot/grub/grub.cfg
+echo ">>> Done -- Inside arch-chroot - Generate GRUB config...."
 
 # User
 useradd -m -G wheel -s /bin/bash $SUPERUSER
 echo "$SUPERUSER:$SUPERPASS" | chpasswd
+echo ">>> Done -- Inside arch-chroot - User creation...."
 
 # Sudo rules
 printf '%%wheel ALL=(ALL:ALL) ALL\n' > /etc/sudoers.d/10-wheel
 chmod 440 /etc/sudoers.d/10-wheel
 printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\n' "$SUPERUSER" > /etc/sudoers.d/11-superuser
 chmod 440 /etc/sudoers.d/11-superuser
+echo ">>> Done -- Inside arch-chroot - User SUDO...."
 
 # SSH key
 mkdir -p /home/$SUPERUSER/.ssh
@@ -156,6 +163,7 @@ chmod 700 /home/$SUPERUSER/.ssh
 echo "$SSH_PUBKEY" > /home/$SUPERUSER/.ssh/authorized_keys
 chmod 600 /home/$SUPERUSER/.ssh/authorized_keys
 chown -R $SUPERUSER:$SUPERUSER /home/$SUPERUSER/.ssh
+echo ">>> Done -- Inside arch-chroot - SSH key...."
 
 # Enable services
 systemctl enable NetworkManager
@@ -163,6 +171,7 @@ systemctl enable sshd
 # systemctl enable alsa-restore
 # systemctl enable alsa-state
 # systemctl enable qemu-guest-agent
+echo ">>> Done -- Inside arch-chroot - Enable services...."
 # ensure qemu-guest-agent unit exists
 if [ -f /usr/lib/systemd/system/qemu-guest-agent.service ]; then
   # if unit has an [Install] section, use systemctl enable
@@ -175,7 +184,7 @@ if [ -f /usr/lib/systemd/system/qemu-guest-agent.service ]; then
           /etc/systemd/system/multi-user.target.wants/qemu-guest-agent.service
   fi
 fi
-echo ">>> Done -- Inside arch-chroot - enable NetworkManager, sshd...."
+echo ">>> Done -- Inside arch-chroot - Enable qemu-guest-agent...."
 
 # # Install cloud-init
 # systemd-machine-id-setup
@@ -199,6 +208,7 @@ echo ">>> Done -- Inside arch-chroot - enable NetworkManager, sshd...."
 mkdir -p /var/lib/cloud/seed/nocloud-net
 chmod 755 /var/lib/cloud/seed
 chmod 755 /var/lib/cloud/seed/nocloud-net
+echo ">>> Done -- Inside arch-chroot - Prepare NoCloud datasource directory for Proxmox...."
 
 # Ensure DHCP is default for all interfaces (cloud-init expects this)
 mkdir -p /etc/NetworkManager/conf.d
@@ -212,6 +222,7 @@ ipv6.method=auto
 EOF_NM
 
 systemctl restart NetworkManager
+echo ">>> Done -- Inside arch-chroot - NetworkManager...."
 
 # Automatic updates
 cat > /etc/systemd/system/auto-update.service <<EOF2
@@ -236,6 +247,7 @@ WantedBy=timers.target
 EOF3
 
 systemctl enable auto-update.timer
+echo ">>> Done -- Inside arch-chroot - Automatic updates...."
 
 CHROOTEOF
 echo ">>> Done -- chroot - Outside CHROOT now..."
