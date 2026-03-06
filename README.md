@@ -58,14 +58,13 @@ If you need step-by-step execution details:
         - General Repo Page, scroll to the bottom to see the artifacts. [https://mirrors.mit.edu/archlinux/iso/2026.02.01/](https://mirrors.mit.edu/archlinux/iso/2026.02.01)
         - ISO Link Base - [https://mirrors.mit.edu/archlinux/iso/](https://mirrors.mit.edu/archlinux/iso/)
         - SHA256 Sum Link - [https://mirrors.mit.edu/archlinux/iso/2026.02.01/sha256sums.txt](https://mirrors.mit.edu/archlinux/iso/2026.02.01/sha256sums.txt)
-
-
+  
     > **❗ Important:**
-    > - By default this Packer code assumes that the Bash Script **[./pkr-proxmox-kvm-archLinux-cli-grub/scripts/ fetch-latest-archLinux-iso-details.sh](#./pkr-proxmox-kvm-archLinux-cli-grub/scripts/ fetch-latest-archLinux-iso-details.sh)** will be executed before the following steps.
+    > - By default this Packer code assumes that the Bash Script **[fetch-latest-archLinux-iso-details.sh](./pkr-proxmox-kvm-archLinux-cli-grub/scripts/ fetch-latest-archLinux-iso-details.sh)** will be executed before the following steps.
     > - This script automatically updates the ISO download link and SHA256 Checksum value, used in iso file verification.
     > - This script assumes we are downloading 'archlinux-2026.XX.XX-x86_64.iso"
     > - After 2026 you will need to update this script to reflect other iso names.
-
+  
     1. An actual WebServer was available and used in Packer Preseeding, rather then using the default Packer mechanism of inbuilt temporary webserver.
         - To do the same for yourself, just copy all files in the subfolder ./pkr-proxmox-kvm-archLinux-cli-grub/http to the actual webserver. Then change the ./pkr-proxmox-kvm-archLinux-cli-grub/vars/archlinux.actual.pkrvars.hcl file accordingly.
 1. Image (KVM Template)  Build - Using Packer
