@@ -52,7 +52,7 @@ If you need step-by-step execution details:
     ```
     * This will produce a very verbose log file, useful for troubleshooting.  
 
-## Cloud-Init - Abondoned for now
+## Cloud-Init - Abandoned for now
 * 2026-03-07 - Cloud-Init tried, but abandoned.
     - Atifacts are left in the source in commented form, for later revisit by someone (if anyone).
     - Refernces:
