@@ -52,6 +52,14 @@ If you need step-by-step execution details:
     ```
     * This will produce a very verbose log file, useful for troubleshooting.  
 
+## Cloud-Init - Abondoned for now
+* 2026-03-07 - Cloud-Init tried, but abandoned.
+    - Atifacts are left in the source in commented form, for later revisit by someone (if anyone).
+    - Refernces:
+        - [https://wiki.archlinux.org/title/Cloud-init](https://wiki.archlinux.org/title/Cloud-init)
+        - [https://docs.cloud-init.io/en/latest/index.html](https://docs.cloud-init.io/en/latest/index.html)
+        - [https://docs.cloud-init.io/en/latest/reference/examples.html#including-users-and-groups](https://docs.cloud-init.io/en/latest/reference/examples.html#including-users-and-groups)
+
 ## Usage 
 1. Preparing for Image Build
     1. For faster build times, the ISO was pre-downloaded into Proxmox server. The ArchLinux Source code binary(iso) used in the Packer script was downloaded from following, and its SHA256 Sum link.
