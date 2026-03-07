@@ -1,0 +1,17 @@
+#cloud-config
+users:
+  - name: $SUPERUSER
+    password: $SUPERPASS
+    chpasswd:
+      expire: False
+    lock_passwd: true
+    gecos: $SUPERUSER_GECOS
+    groups: [wheel, adm]
+    sudo: ["ALL=(ALL) NOPASSWD: ALL"]
+    shell: /bin/bash
+    authorized_keys:
+      - $SSH_PUBKEY
+disable_root: false
+runcmd:
+  - echo 'user_data' >> /var/tmp/mydata.txt
+  - mv /etc/cloud/cloud.cfg /etc/cloud/cloud.cfg.delete_me

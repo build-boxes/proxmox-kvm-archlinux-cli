@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eux
+set -eu
 
 # Minimal bootstrap run inside the Arch live environment.
 # Usage: this script is fetched and executed by the VM during early boot.

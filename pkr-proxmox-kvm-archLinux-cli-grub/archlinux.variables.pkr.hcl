@@ -78,11 +78,15 @@ variable "proxmox_node" {
 variable "iso_file" {
   type    = string
   description = "ISO file path in Proxmox storage"
+  #nullable = true
+  default = null
 }
 
 variable "dynamic_iso_url" {
   type    = string
   description = "Dynamically fetched ISO URL for ArchLinux"
+  #nullable = true
+  default = null
 }
 
 variable "iso_storage_pool" {
@@ -90,9 +94,18 @@ variable "iso_storage_pool" {
   default = ""
 }
 
+variable "iso_checksum" {
+  type    = string
+  description = "ISO checksum of file in Proxmox storage"
+  #nullable = true
+  default = null
+}
+
 variable "dynamic_iso_checksum" {
   type    = string
   description = "Dynamically fetched ISO checksum"
+  #nullable = true
+  default = null
 }
 
 variable "iso_storage" {
@@ -218,5 +231,17 @@ variable "lvm_swap" {
 
 variable "cloud_init" {
   type = bool
+  default = false
+}
+
+variable "seed_url" {
+  type    = string
+  description = "URL (http/s, ftp/s, file) for cloud-init seed data (NoCloud)"
+  default = ""
+}
+
+variable "install_aur_yay" {
+  type    = bool
+  description = "Whether to install yay AUR helper during the build process"
   default = false
 }

@@ -16,14 +16,14 @@ disk_ssd_enabled  = false
 vm_image_tags     = ["template", "archlinux", "cli", "minimal"]
 
 iso_storage_pool = "vmdata"
-#iso_url          = "https://cdimage.debian.org/debian-cd/13.3.0/amd64/iso-cd/debian-13.3.0-amd64-netinst.iso"
+#iso_url          = "https://mirrors.mit.edu/archlinux/iso/2026.02.01/archlinux-2026.02.01-x86_64.iso"
 ## If Using Pre Downloaded image use following line, and comment iso_url line and dont use 
 ##    dynamic_iso_url or 'fetch-latest-debian13-iso-details.sh' script.
 #iso_file         = "vmdata:iso/archlinux-2026.02.01-x86_64.iso"
-iso_file         = ""
+#iso_file         = ""
+#iso_file         = "vmdata:iso/29babc15fa3e0858846cf1f213a2cd03e5c3b9d2.iso"
 ## If Using Pre Downloaded image use following line, and update value accodingly.
-#iso_checksum     = "sha512:1ada40e4c938528dd8e6b9c88c19b978a0f8e2a6757b9cf634987012d37ec98503ebf3e05acbae9be4c0ec00b52e8852106de1bda93a2399d125facea45400f8"
-##
+#iso_checksum     = "sha256:569f7331bbcb882d130035324ab5feb1cd9807ccc9a49aa61102d40121518db6"
 
 archlinux_root_password = "simplePassW0rd" # Used during initial Packer login. It will be changed later on.
 # encoded password for "packer". Used $ echo "packer" | mkpasswd --method=SHA-512 --rounds=4096
@@ -41,3 +41,8 @@ swap_size="750M"
 timezone="America/Toronto"
 hostname="archlvm"
 mirrors_country="US"
+# Following Cloud-init config is optional, but allows control of initial user and network config via cloud-init. [NoCloud, None]
+cloud_init=true
+# seed_url = "file:///home/username/packer-preseed-dir/archlinux-cli/"
+seed_url="https://abcdefgh.com/packer-preseed-dir/archlinux-cli/"
+install_aur_yay = true

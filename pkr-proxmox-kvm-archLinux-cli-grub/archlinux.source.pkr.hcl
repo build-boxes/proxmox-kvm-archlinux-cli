@@ -46,11 +46,10 @@ source "proxmox-iso" "archlinux" {
 
   boot_iso {
     type              = "sata"
-    #iso_file          = var.iso_file
-    iso_url           = var.dynamic_iso_url
+    iso_url           = var.dynamic_iso_url != "" ? var.dynamic_iso_url : null
+    iso_file          = var.iso_file != "" ? var.iso_file : null
     iso_storage_pool  = var.iso_storage_pool
-    #iso_checksum      = var.iso_checksum
-    iso_checksum      = var.dynamic_iso_checksum
+    iso_checksum      = var.dynamic_iso_checksum != "" ? var.dynamic_iso_checksum : var.iso_checksum
     unmount           = true
   }
 
