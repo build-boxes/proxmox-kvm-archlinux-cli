@@ -240,8 +240,3 @@ variable "seed_url" {
   default = ""
 }
 
-variable "install_aur_yay" {
-  type    = bool
-  description = "Whether to install yay AUR helper during the build process"
-  default = false
-}
