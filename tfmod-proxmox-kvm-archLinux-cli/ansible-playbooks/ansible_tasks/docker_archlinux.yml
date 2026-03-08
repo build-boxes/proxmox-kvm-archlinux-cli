@@ -1,0 +1,36 @@
+---
+- name: Update system packages
+  pacman:
+    update_cache: true
+    upgrade: true
+
+- name: Install Docker packages
+  pacman:
+    name:
+      - docker
+      - docker-compose
+      - docker-buildx
+    state: present
+
+- name: Enable and start Docker service
+  systemd:
+    name: docker.service
+    enabled: true
+    state: started
+
+- name: Ensure docker group exists
+  group:
+    name: docker
+    state: present
+
+- name: Add user to docker group
+  user:
+    name: "{{ docker_user }}"
+    groups: docker
+    append: true
+
+- name: Run hello-world container (first run pulls image)
+  command: docker run --rm hello-world
+  register: hello_output
+  changed_when: false
+  failed_when: false
