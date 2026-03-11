@@ -175,20 +175,21 @@ cat /boot/grub/grub.cfg
 echo ">>> ------------------------------"
 echo ">>> Done -- Inside arch-chroot - Generate GRUB config...."
 
-# # Super-User
-# useradd -m -G wheel -s /bin/bash $SUPERUSER
-# echo "$SUPERUSER:$SUPERPASS" | chpasswd
-# echo ">>> Done -- Inside arch-chroot - User creation...."
-# # Super-User  - Prevent superuser password expiration
-# chage -m 0 -M -1 -E -1 $SUPERUSER
-# echo ">>> Done -- Inside arch-chroot - Prevent superuser password expiration...."
-# # Super-User - Set up SSH key
-# mkdir -p /home/$SUPERUSER/.ssh
-# chmod 700 /home/$SUPERUSER/.ssh
-# echo "$SSH_PUBKEY" > /home/$SUPERUSER/.ssh/authorized_keys
-# chmod 600 /home/$SUPERUSER/.ssh/authorized_keys
-# chown -R $SUPERUSER:$SUPERUSER /home/$SUPERUSER/.ssh
-# echo ">>> Done -- Inside arch-chroot - SSH key...."
+## Disable below section when Cloud-init starts working ok.
+# Super-User
+useradd -m -G wheel -s /bin/bash $SUPERUSER
+echo "$SUPERUSER:$SUPERPASS" | chpasswd
+echo ">>> Done -- Inside arch-chroot - User creation...."
+# Super-User  - Prevent superuser password expiration
+chage -m 0 -M -1 -E -1 $SUPERUSER
+echo ">>> Done -- Inside arch-chroot - Prevent superuser password expiration...."
+# Super-User - Set up SSH key
+mkdir -p /home/$SUPERUSER/.ssh
+chmod 700 /home/$SUPERUSER/.ssh
+echo "$SSH_PUBKEY" > /home/$SUPERUSER/.ssh/authorized_keys
+chmod 600 /home/$SUPERUSER/.ssh/authorized_keys
+chown -R $SUPERUSER:$SUPERUSER /home/$SUPERUSER/.ssh
+echo ">>> Done -- Inside arch-chroot - SSH key...."
 
 # Set root password and prevent expiration
 echo "root:$ROOTPASSNEW" | chpasswd
@@ -247,10 +248,11 @@ printf '%%wheel ALL=(ALL:ALL) ALL\n' > /etc/sudoers.d/10-wheel
 chmod 440 /etc/sudoers.d/10-wheel
 echo ">>> Done -- Inside arch-chroot - Wheel group SUDO rules...."
 
-# # Sudo rules Super User
-# printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\n' "$SUPERUSER" > /etc/sudoers.d/11-superuser
-# chmod 440 /etc/sudoers.d/11-superuser
-# echo ">>> Done -- Inside arch-chroot - Super-User SUDO rules...."
+## Disable below section when Cloud-init starts working ok.
+# Sudo rules Super User
+printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\n' "$SUPERUSER" > /etc/sudoers.d/11-superuser
+chmod 440 /etc/sudoers.d/11-superuser
+echo ">>> Done -- Inside arch-chroot - Super-User SUDO rules...."
 
 systemctl enable NetworkManager
 systemctl enable sshd
