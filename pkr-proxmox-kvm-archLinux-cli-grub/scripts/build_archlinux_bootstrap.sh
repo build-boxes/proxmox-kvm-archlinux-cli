@@ -178,20 +178,20 @@ echo ">>> ------------------------------"
 echo ">>> Done -- Inside arch-chroot - Generate GRUB config...."
 
 ## Disable below section when Cloud-init starts working ok.
-# # Super-User
-# useradd -m -G wheel -s /bin/bash $SUPERUSER
-# echo "$SUPERUSER:$SUPERPASS" | chpasswd
-# echo ">>> Done -- Inside arch-chroot - User creation...."
-# # Super-User  - Prevent superuser password expiration
-# chage -m 0 -M -1 -E -1 $SUPERUSER
-# echo ">>> Done -- Inside arch-chroot - Prevent superuser password expiration...."
-# # Super-User - Set up SSH key
-# mkdir -p /home/$SUPERUSER/.ssh
-# chmod 700 /home/$SUPERUSER/.ssh
-# echo "$SSH_PUBKEY" > /home/$SUPERUSER/.ssh/authorized_keys
-# chmod 600 /home/$SUPERUSER/.ssh/authorized_keys
-# chown -R $SUPERUSER:$SUPERUSER /home/$SUPERUSER/.ssh
-# echo ">>> Done -- Inside arch-chroot - SSH key...."
+# Super-User
+useradd -m -G wheel -s /bin/bash $SUPERUSER
+echo "$SUPERUSER:$SUPERPASS" | chpasswd
+echo ">>> Done -- Inside arch-chroot - User creation...."
+# Super-User  - Prevent superuser password expiration
+chage -m 0 -M -1 -E -1 $SUPERUSER
+echo ">>> Done -- Inside arch-chroot - Prevent superuser password expiration...."
+# Super-User - Set up SSH key
+mkdir -p /home/$SUPERUSER/.ssh
+chmod 700 /home/$SUPERUSER/.ssh
+echo "$SSH_PUBKEY" > /home/$SUPERUSER/.ssh/authorized_keys
+chmod 600 /home/$SUPERUSER/.ssh/authorized_keys
+chown -R $SUPERUSER:$SUPERUSER /home/$SUPERUSER/.ssh
+echo ">>> Done -- Inside arch-chroot - SSH key...."
 
 # Set root password and prevent expiration
 echo "root:$ROOTPASSNEW" | chpasswd
@@ -251,10 +251,10 @@ chmod 440 /etc/sudoers.d/10-wheel
 echo ">>> Done -- Inside arch-chroot - Wheel group SUDO rules...."
 
 ## Disable below section when Cloud-init starts working ok.
-# # Sudo rules Super User
-# printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\n' "$SUPERUSER" > /etc/sudoers.d/11-superuser
-# chmod 440 /etc/sudoers.d/11-superuser
-# echo ">>> Done -- Inside arch-chroot - Super-User SUDO rules...."
+# Sudo rules Super User
+printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\n' "$SUPERUSER" > /etc/sudoers.d/11-superuser
+chmod 440 /etc/sudoers.d/11-superuser
+echo ">>> Done -- Inside arch-chroot - Super-User SUDO rules...."
 
 systemctl enable NetworkManager
 systemctl enable sshd
@@ -336,7 +336,6 @@ echo ">>> Done - Installed cloud-init..."
 # Setup a basic cloud-init.conf
 echo "datasource_list: [ NoCloud, ConfigDrive ]" > /etc/cloud/cloud.cfg.d/90_dpkg.cfg
 cat > /etc/cloud/cloud.cfg <<EOF_CLOUD
-#cloud-config
 users:
   - default
 cloud_init_modules:

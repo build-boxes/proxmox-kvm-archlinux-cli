@@ -212,15 +212,15 @@ resource "proxmox_virtual_environment_vm" "clone_edited_template" {
     # #     servers = var.vm_fixed_dns
     # #   }
     # # }
-    ip_config {
-      ipv4 {
-        address = var.vm_fixed_ip
-        gateway = var.vm_fixed_gateway
-      }
-    }
-    dns {
-      servers = var.vm_fixed_dns
-    }    
+    # ip_config {
+    #   ipv4 {
+    #     address = var.vm_fixed_ip
+    #     gateway = var.vm_fixed_gateway
+    #   }
+    # }
+    # dns {
+    #   servers = var.vm_fixed_dns
+    # }    
     # >>> Fixed IP -- End
   }
 }
@@ -231,8 +231,6 @@ resource "time_sleep" "wait_1_minutes_1" {
   create_duration = "1m"
 }
 
-# # NB this can only connect after about 3m15s (because the ssh service in the
-# #    windows base image is configured as "delayed start").
 resource "null_resource" "ssh_into_vm" {
   depends_on = [time_sleep.wait_1_minutes_1]
   provisioner "remote-exec" {
@@ -280,6 +278,7 @@ resource "null_resource" "ssh_into_vm" {
       sudo resize2fs /dev/vg0/lvmroot
       echo "Extended root filesystem to fill boot disk."
       ## End Extend Root filesystem to fill boot disk
+      #
       EOF
     ]
   }
@@ -291,13 +290,45 @@ resource "time_sleep" "wait_3_minutes_2" {
   create_duration = "3m"
 }
 
+data "templatefile" "nm_static_ip" {
+  depends_on = [time_sleep.wait_3_minutes_2]
+  template = "${path.module}/scripts/nm-static-ip.sh.tpl"
+  vars = {
+    ipv4_address = var.var_vm_fixed_ip
+    ipv4_gateway = var.var_vm_fixed_gateway
+    ipv4_dns     = join(",", var.var_vm_fixed_dns)
+  }
+}
+
+resource "null_resource" "configure_network" {
+  depends_on = [templatefile.nm_static_ip]
+  triggers = {
+    ipv4_address = var.var_vm_fixed_ip
+    ipv4_gateway = var.var_vm_fixed_gateway
+    ipv4_dns     = join(",", var.var_vm_fixed_dns)
+  }
+
+  provisioner "file" {
+    content     = data.templatefile.nm_static_ip.rendered
+    destination = "/tmp/nm-static-ip.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/nm-static-ip.sh",
+      "sudo /tmp/nm-static-ip.sh",
+      "sleep 30"
+    ]
+  }
+}
+
 ## Run Ansible Playbook to install and configure docker (if mandated by var.docker_installed).
 ## Assumes Ansible is installed on the local machine running Terraform.
 ## Also assumes the Ansible playbook is located in ./ansible-playbooks/ansible_main.yml
 ##
 resource "null_resource" "run_ansible_playbook" {
-  depends_on = [time_sleep.wait_3_minutes_2]
-  provisioner "local-exec" {
+  depends_on = [null_resource.configure_network]
+    provisioner "local-exec" {
     #interpreter = ["/bin/bash"]
     # Use the module path so the playbooks are found whether the module is local or fetched into .terraform/modules
     working_dir = "${path.module}/ansible-playbooks"
