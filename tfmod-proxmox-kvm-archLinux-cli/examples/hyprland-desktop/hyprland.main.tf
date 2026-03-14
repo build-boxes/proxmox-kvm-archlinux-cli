@@ -62,8 +62,8 @@ resource "null_resource" "call_custom_script" {
   depends_on = [module.archlinux-cli]  
   provisioner "local-exec" {
     command = <<EOT
-      scp -o StrictHostKeyChecking=no -i ${var.pvt_key_file} ./scripts/install_ahc.actual.sh ${var.superuser_username}@${local.host_ip}:/home/${var.superuser_username}/install_ahc.sh
-      ssh -o StrictHostKeyChecking=no -i ${var.pvt_key_file} ${var.superuser_username}@${local.host_ip} "chmod +x /home/${var.superuser_username}/install_ahc.sh && /home/${var.superuser_username}/install_ahc.sh"
+      scp -o StrictHostKeyChecking=no -i ${var.pvt_key_file} ./scripts/install_hyprland.actual.sh ${var.superuser_username}@${local.host_ip}:/home/${var.superuser_username}/install_hyprland.sh
+      ssh -o StrictHostKeyChecking=no -i ${var.pvt_key_file} ${var.superuser_username}@${local.host_ip} "chmod +x /home/${var.superuser_username}/install_hyprland.sh && /home/${var.superuser_username}/install_hyprland.sh"
     EOT
   }
 }
