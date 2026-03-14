@@ -179,20 +179,8 @@ resource "time_sleep" "wait_2_minutes_2" {
   create_duration = "2m"
 }
 
-data "templatefile" "initialize_disks" {
-  depends_on = [time_sleep.wait_2_minutes_2]
-  template = "${path.module}/scripts/initialize-extra-disks.sh.tpl"
-
-  vars = {
-    root_new_password        = var.root_new_password
-    superuser_username       = var.superuser_username
-    superuser_password       = var.superuser_password
-    rsyslog_yay_aur_installed = var.rsyslog_yay_aur_installed
-  }
-}
-
 resource "null_resource" "initialize_disks" {
-  #depends_on = [data.templatefile.initialize_disks]
+  depends_on = [time_sleep.wait_2_minutes_2]
   triggers = {
     root_pw   = var.root_new_password
     superuser = var.superuser_username
@@ -200,7 +188,7 @@ resource "null_resource" "initialize_disks" {
   }
 
   provisioner "file" {
-    content     = data.templatefile.initialize_disks.rendered
+    content = local.initialize_disks.rendered
     destination = "/tmp/initialize-disks.sh"
   }
 
@@ -225,18 +213,9 @@ resource "time_sleep" "wait_2_minutes_3" {
   create_duration = "2m"
 }
 
-data "templatefile" "nm_static_ip" {
-  depends_on = [time_sleep.wait_2_minutes_3]
-  template = "${path.module}/scripts/nm-static-ip.sh.tpl"
-  vars = {
-    ipv4_address = var.var_vm_fixed_ip
-    ipv4_gateway = var.var_vm_fixed_gateway
-    ipv4_dns     = join(",", var.var_vm_fixed_dns)
-  }
-}
 
 resource "null_resource" "configure_network" {
-  #depends_on = [data.templatefile.nm_static_ip]
+  depends_on = [time_sleep.wait_2_minutes_3]
   triggers = {
     ipv4_address = var.var_vm_fixed_ip
     ipv4_gateway = var.var_vm_fixed_gateway
@@ -244,7 +223,7 @@ resource "null_resource" "configure_network" {
   }
 
   provisioner "file" {
-    content     = data.templatefile.nm_static_ip.rendered
+    content     = local.nm_static_ip.rendered
     destination = "/tmp/nm-static-ip.sh"
   }
 
