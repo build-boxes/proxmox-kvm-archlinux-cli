@@ -192,7 +192,7 @@ data "templatefile" "initialize_disks" {
 }
 
 resource "null_resource" "initialize_disks" {
-  depends_on = [data.templatefile.initialize_disks]
+  #depends_on = [data.templatefile.initialize_disks]
   triggers = {
     root_pw   = var.root_new_password
     superuser = var.superuser_username
@@ -236,7 +236,7 @@ data "templatefile" "nm_static_ip" {
 }
 
 resource "null_resource" "configure_network" {
-  depends_on = [data.templatefile.nm_static_ip]
+  #depends_on = [data.templatefile.nm_static_ip]
   triggers = {
     ipv4_address = var.var_vm_fixed_ip
     ipv4_gateway = var.var_vm_fixed_gateway
