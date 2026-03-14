@@ -236,7 +236,7 @@ data "templatefile" "nm_static_ip" {
 }
 
 resource "null_resource" "configure_network" {
-  depends_on = [templatefile.nm_static_ip]
+  depends_on = [data.templatefile.nm_static_ip]
   triggers = {
     ipv4_address = var.var_vm_fixed_ip
     ipv4_gateway = var.var_vm_fixed_gateway
