@@ -284,14 +284,59 @@ resource "null_resource" "ssh_into_vm" {
   }
 }
 
-resource "time_sleep" "wait_3_minutes_2" {
+resource "time_sleep" "wait_2_minutes_2" {
   depends_on = [null_resource.ssh_into_vm]
+  create_duration = "2m"
+}
+
+data "templatefile" "initialize_disks" {
+  depends_on = [time_sleep.wait_2_minutes_2]
+  template = "${path.module}/scripts/initialize-extra-disks.sh.tpl"
+
+  vars = {
+    root_new_password        = var.root_new_password
+    superuser_username       = var.superuser_username
+    superuser_password       = var.superuser_password
+    rsyslog_yay_aur_installed = var.rsyslog_yay_aur_installed
+  }
+}
+
+resource "null_resource" "initialize_disks" {
+  depends_on = [data.templatefile.initialize_disks]
+  triggers = {
+    root_pw   = var.root_new_password
+    superuser = var.superuser_username
+    yay_flag  = var.rsyslog_yay_aur_installed
+  }
+
+  provisioner "file" {
+    content     = data.templatefile.initialize_disks.rendered
+    destination = "/tmp/initialize-disks.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/initialize-disks.sh",
+      "sudo /tmp/initialize-disks.sh"
+    ]
+  }
+
+  connection {
+    type     = "ssh"
+    host     = var.vm_ip
+    user     = "root"
+    password = var.root_new_password
+  }
+}
+
+resource "time_sleep" "wait_2_minutes_3" {
+  depends_on = [null_resource.initialize_disks]
   # 12 minutes sleep. I have a slow Proxmox Host :(
-  create_duration = "3m"
+  create_duration = "2m"
 }
 
 data "templatefile" "nm_static_ip" {
-  depends_on = [time_sleep.wait_3_minutes_2]
+  depends_on = [time_sleep.wait_2_minutes_3]
   template = "${path.module}/scripts/nm-static-ip.sh.tpl"
   vars = {
     ipv4_address = var.var_vm_fixed_ip
