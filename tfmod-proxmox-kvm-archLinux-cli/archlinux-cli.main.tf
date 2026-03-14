@@ -37,7 +37,7 @@ data "cloudinit_config" "initialize_sudo_disks" {
 
       # # Super-User
       # useradd -m -G wheel -s /bin/bash $SUPERUSER
-      echo "${var.superuser_username}:${var.superuser_password_plain}" | chpasswd
+      echo "${var.superuser_username}:${var.superuser_password}" | chpasswd
       echo ">>> Done -- Super-User creation...."
       # Super-User  - Prevent superuser password expiration
       chage -m 0 -M -1 -E -1 ${var.superuser_username}
