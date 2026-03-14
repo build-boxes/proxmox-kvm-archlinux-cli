@@ -98,7 +98,7 @@ echo ">>> Done -- System config (timezone, locale, vconsole)....."
 pacstrap -K /mnt \
   base linux linux-firmware lvm2 python curl wget mc sed gawk htop tree grep less tar which git nano bash sudo openssh \
   systemd dbus netplan \
-  iwd linux-firmware rtl8821ce-dkms rtl88xxau-aircrack-dkms rtl8723bu-dkms broadcom-wl-dkms b43-fwcutter \
+  iwd linux-firmware broadcom-wl-dkms b43-fwcutter \
   bluez bluez-utils \
   networkmanager inetutils bind-tools alsa-utils alsa-plugins mpg123 pacman-contrib ntp qemu-guest-agent \
   tzdata cloud-guest-utils gptfdisk glibc ca-certificates shadow base-devel \
