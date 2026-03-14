@@ -36,8 +36,8 @@ data "cloudinit_config" "initialize_sudo_disks" {
       sudo chage -I -1 -m 0 -M -1 -E -1 root;      
 
       # # Super-User
-      useradd -m -G wheel -s /bin/bash $SUPERUSER
-      echo "${var.superuser_username}:BigPassword01" | chpasswd
+      # useradd -m -G wheel -s /bin/bash $SUPERUSER
+      echo "${var.superuser_username}:${var.superuser_password_plain}" | chpasswd
       echo ">>> Done -- Super-User creation...."
       # Super-User  - Prevent superuser password expiration
       chage -m 0 -M -1 -E -1 ${var.superuser_username}
@@ -196,22 +196,31 @@ resource "proxmox_virtual_environment_vm" "clone_edited_template" {
     user_data_file_id = proxmox_virtual_environment_file.initialize_ci_user_data.id
     datastore_id = var.proxmox_datastore_id    
     # >>> Fixed IP -- Start
-    # Use following if need fixed IP Address, otherwise comment out   
-    dynamic "ip_config" {
-      for_each = (var.vm_fixed_ip != "" && var.vm_fixed_gateway != "" && length(var.vm_fixed_dns) > 0 ? [1] : [])
-      content {
-        ipv4 {
-          address = var.vm_fixed_ip
-          gateway = var.vm_fixed_gateway
-        }
+    # # Use following if need fixed IP Address, otherwise comment out   
+    # # dynamic "ip_config" {
+    # #   for_each = (var.vm_fixed_ip != "" && var.vm_fixed_gateway != "" && length(var.vm_fixed_dns) > 0 ? [1] : [])
+    # #   content {
+    # #     ipv4 {
+    # #       address = var.vm_fixed_ip
+    # #       gateway = var.vm_fixed_gateway
+    # #     }
+    # #   }
+    # # }
+    # # dynamic "dns" {
+    # #   for_each = (var.vm_fixed_ip != "" && var.vm_fixed_gateway != "" && length(var.vm_fixed_dns) > 0 ? [1] : [])
+    # #   content {
+    # #     servers = var.vm_fixed_dns
+    # #   }
+    # # }
+    ip_config {
+      ipv4 {
+        address = var.vm_fixed_ip
+        gateway = var.vm_fixed_gateway
       }
     }
-    dynamic "dns" {
-      for_each = (var.vm_fixed_ip != "" && var.vm_fixed_gateway != "" && length(var.vm_fixed_dns) > 0 ? [1] : [])
-      content {
-        servers = var.vm_fixed_dns
-      }
-    }
+    dns {
+      servers = var.vm_fixed_dns
+    }    
     # >>> Fixed IP -- End
   }
 }

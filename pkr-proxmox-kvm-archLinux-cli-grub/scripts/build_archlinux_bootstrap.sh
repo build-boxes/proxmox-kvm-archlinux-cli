@@ -98,6 +98,8 @@ echo ">>> Done -- System config (timezone, locale, vconsole)....."
 pacstrap -K /mnt \
   base linux linux-firmware lvm2 python curl wget mc sed gawk htop tree grep less tar which git nano bash sudo openssh \
   systemd dbus netplan \
+  iwd linux-firmware rtl8821ce-dkms rtl88xxau-aircrack-dkms rtl8723bu-dkms broadcom-wl-dkms b43-fwcutter \
+  bluez bluez-utils \
   networkmanager inetutils bind-tools alsa-utils alsa-plugins mpg123 pacman-contrib ntp qemu-guest-agent \
   tzdata cloud-guest-utils gptfdisk glibc ca-certificates shadow base-devel \
   grub efibootmgr
@@ -176,20 +178,20 @@ echo ">>> ------------------------------"
 echo ">>> Done -- Inside arch-chroot - Generate GRUB config...."
 
 ## Disable below section when Cloud-init starts working ok.
-# Super-User
-useradd -m -G wheel -s /bin/bash $SUPERUSER
-echo "$SUPERUSER:$SUPERPASS" | chpasswd
-echo ">>> Done -- Inside arch-chroot - User creation...."
-# Super-User  - Prevent superuser password expiration
-chage -m 0 -M -1 -E -1 $SUPERUSER
-echo ">>> Done -- Inside arch-chroot - Prevent superuser password expiration...."
-# Super-User - Set up SSH key
-mkdir -p /home/$SUPERUSER/.ssh
-chmod 700 /home/$SUPERUSER/.ssh
-echo "$SSH_PUBKEY" > /home/$SUPERUSER/.ssh/authorized_keys
-chmod 600 /home/$SUPERUSER/.ssh/authorized_keys
-chown -R $SUPERUSER:$SUPERUSER /home/$SUPERUSER/.ssh
-echo ">>> Done -- Inside arch-chroot - SSH key...."
+# # Super-User
+# useradd -m -G wheel -s /bin/bash $SUPERUSER
+# echo "$SUPERUSER:$SUPERPASS" | chpasswd
+# echo ">>> Done -- Inside arch-chroot - User creation...."
+# # Super-User  - Prevent superuser password expiration
+# chage -m 0 -M -1 -E -1 $SUPERUSER
+# echo ">>> Done -- Inside arch-chroot - Prevent superuser password expiration...."
+# # Super-User - Set up SSH key
+# mkdir -p /home/$SUPERUSER/.ssh
+# chmod 700 /home/$SUPERUSER/.ssh
+# echo "$SSH_PUBKEY" > /home/$SUPERUSER/.ssh/authorized_keys
+# chmod 600 /home/$SUPERUSER/.ssh/authorized_keys
+# chown -R $SUPERUSER:$SUPERUSER /home/$SUPERUSER/.ssh
+# echo ">>> Done -- Inside arch-chroot - SSH key...."
 
 # Set root password and prevent expiration
 echo "root:$ROOTPASSNEW" | chpasswd
@@ -249,10 +251,10 @@ chmod 440 /etc/sudoers.d/10-wheel
 echo ">>> Done -- Inside arch-chroot - Wheel group SUDO rules...."
 
 ## Disable below section when Cloud-init starts working ok.
-# Sudo rules Super User
-printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\n' "$SUPERUSER" > /etc/sudoers.d/11-superuser
-chmod 440 /etc/sudoers.d/11-superuser
-echo ">>> Done -- Inside arch-chroot - Super-User SUDO rules...."
+# # Sudo rules Super User
+# printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\n' "$SUPERUSER" > /etc/sudoers.d/11-superuser
+# chmod 440 /etc/sudoers.d/11-superuser
+# echo ">>> Done -- Inside arch-chroot - Super-User SUDO rules...."
 
 systemctl enable NetworkManager
 systemctl enable sshd
@@ -332,7 +334,9 @@ pacman --noconfirm -S cloud-init cloud-guest-utils
 systemctl daemon-reload
 echo ">>> Done - Installed cloud-init..."
 # Setup a basic cloud-init.conf
+echo "datasource_list: [ NoCloud, ConfigDrive ]" > /etc/cloud/cloud.cfg.d/90_dpkg.cfg
 cat > /etc/cloud/cloud.cfg <<EOF_CLOUD
+#cloud-config
 users:
   - default
 cloud_init_modules:
@@ -377,35 +381,28 @@ cloud_final_modules:
   - phone_home
   - final_message
   - power_state_change
-datasource_list: [ NoCloud, ConfigDrive, None ]
-datasource:
-  NoCloud:
-    seedfrom: $SEED_URL
-  ConfigDrive:
-    dsmode: local
-  None:
-    system_info:
-      distro: arch
-      default_user:
-        name: $SUPERUSER
-        password: $SUPERPASS
-        lock_passwd: True
-        gecos: $SUPERUSER_GECOS
-        groups: [users, wheel, adm]
-        sudo: ["ALL=(ALL) NOPASSWD: ALL"]
-        shell: /bin/bash
-        authorized_keys:
-          - $SSH_PUBKEY
-      paths:
-        cloud_dir: /var/lib/cloud/
-        templates_dir: /etc/cloud/templates/
-      ssh_svcname: sshd
-    network:
-      version: 2
-      ethernets:
-        eth0:
-          dhcp4: true
-          optional: true
+system_info:
+  distro: arch
+  default_user:
+    name: $SUPERUSER
+    password: $SUPERPASS
+    lock_passwd: True
+    gecos: $SUPERUSER_GECOS
+    groups: [users, wheel, adm]
+    sudo: ["ALL=(ALL) NOPASSWD: ALL"]
+    shell: /bin/bash
+    authorized_keys:
+      - $SSH_PUBKEY
+  paths:
+    cloud_dir: /var/lib/cloud/
+    templates_dir: /etc/cloud/templates/
+  ssh_svcname: sshd
+network_data:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: true
+      optional: true
 EOF_CLOUD
 #
 if [ -f /etc/cloud/cloud.cfg ]; then

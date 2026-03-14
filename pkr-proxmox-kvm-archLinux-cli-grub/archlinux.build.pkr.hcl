@@ -27,7 +27,38 @@ build {
       MIRRORS_COUNTRY = var.mirrors_country
       SEED_URL = var.seed_url
     }
-
   }
+
+  # # Copy default cloud-init config
+  # provisioner "file" {
+  #   destination = "/etc/cloud/cloud.cfg"
+  #   source      = "http/cloud.cfg"
+  # }
+
+  # # Replace superuser_name placeholder in cloud.cfg
+  # provisioner "shell" {
+  #   inline = ["awk -v old='<<superuser_name>>' -v new='${var.superuser_name}' '{gsub(old, new); print}' /etc/cloud/cloud.cfg > /tmp/cloud.cfg && mv /tmp/cloud.cfg /etc/cloud/cloud.cfg"]
+  # }
+
+  # # Replace superuser_gecos placeholder in cloud.cfg
+  # provisioner "shell" {
+  #   inline = ["awk -v old='<<superuser_gecos>>' -v new='${var.superuser_gecos}' '{gsub(old, new); print}' /etc/cloud/cloud.cfg > /tmp/cloud.cfg && mv /tmp/cloud.cfg /etc/cloud/cloud.cfg"]
+  # }
+
+  # # Replace superuser_password placeholder in cloud.cfg
+  # provisioner "shell" {
+  #   inline = ["awk -v old='<<superuser_password>>' -v new='${var.superuser_password}' '{gsub(old, new); print}' /etc/cloud/cloud.cfg > /tmp/cloud.cfg && mv /tmp/cloud.cfg /etc/cloud/cloud.cfg"]
+  # }
+
+  # # Replace superuser_ssh_pub_key placeholder in cloud.cfg
+  # provisioner "shell" {
+  #   inline = ["awk -v old='<<superuser_ssh_pub_key>>' -v new='${var.superuser_ssh_pub_key}' '{gsub(old, new); print}' /etc/cloud/cloud.cfg > /tmp/cloud.cfg && mv /tmp/cloud.cfg /etc/cloud/cloud.cfg"]
+  # }
+
+  # # Copy Proxmox cloud-init config
+  # provisioner "file" {
+  #   destination = "/etc/cloud/cloud.cfg.d/99-pve.cfg"
+  #   source      = "http/99-pve.cfg"
+  # }
 
 }
