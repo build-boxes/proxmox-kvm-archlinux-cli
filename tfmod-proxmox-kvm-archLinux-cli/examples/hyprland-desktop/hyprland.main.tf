@@ -56,19 +56,109 @@ module "archlinux-cli" {
 locals{
   host_ip = module.archlinux-cli.ip
   host_ip_fixed = module.archlinux-cli.ip_fixed
+
+  install_hyperland_script = templatefile("${path.cwd}/scripts/install_hyprland.actual.sh.tpl", {
+    USER        = var.superuser_username
+    PASSWORD    = var.superuser_password
+  })
+
+  hyperland_config_file = templatefile("${path.cwd}/scripts/hyprland.conf.tpl", {
+  })
 }
 
-## Example of copying and running a custom script on the created VM.
-## Assumes the custom script is located in ../scripts/install_ahc.sh
-##
-resource "null_resource" "call_custom_script" {
-  depends_on = [module.archlinux-cli]  
-  provisioner "local-exec" {
-    command = <<EOT
-      scp -o StrictHostKeyChecking=no -i ${var.pvt_key_file} ./scripts/install_hyprland.actual.sh ${var.superuser_username}@${local.host_ip_fixed}:/home/${var.superuser_username}/install_hyprland.sh
-      ssh -o StrictHostKeyChecking=no -i ${var.pvt_key_file} ${var.superuser_username}@${local.host_ip_fixed} "chmod +x /home/${var.superuser_username}/install_hyprland.sh && /home/${var.superuser_username}/install_hyprland.sh"
-    EOT
+resource "null_resource" "copy_and_execute_custom_template_script" {
+  depends_on = [module.archlinux-cli]
+  triggers = {
+      USER        = var.superuser_username
+      PASSWORD    = var.superuser_password
+    }
+
+  provisioner "file" {
+    content     = local.install_hyperland_script
+    destination = "/tmp/install_hyprland.sh"
   }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/install_hyprland.sh",
+      "/tmp/install_hyprland.sh"
+    ]
+  }
+
+  connection {
+    type     = "ssh"
+    host     = local.host_ip_fixed
+    user     = var.superuser_username
+    password = var.superuser_password
+    private_key = file("${var.pvt_key_file}")
+  }  
+}
+
+resource "null_resource" "copy_hyprland_config" {
+  depends_on = [null_resource.copy_and_execute_custom_template_script]
+  triggers = {
+      always_run = timestamp()
+    }
+
+  provisioner "file" {
+    content     = local.hyperland_config_file
+    destination = "/home/${var.superuser_username}/.config/hypr/hyprland.conf"
+  }
+
+  connection {
+    type     = "ssh"
+    host     = local.host_ip_fixed
+    user     = var.superuser_username
+    password = var.superuser_password
+    private_key = file("${var.pvt_key_file}")
+  }  
+}
+
+resource "null_resource" "copy_waybar_folder" {
+  depends_on = [null_resource.copy_hyprland_config]
+  # Trigger re-run if folder contents change
+  triggers = {
+    always_run = timestamp()
+  }
+
+  provisioner "file" {
+    source      = "${path.cwd}/scripts/waybar_resources/"   
+    destination = "/home/${var.superuser_username}/.config/waybar/"
+
+    connection {
+      type        = "ssh"
+      host        = local.host_ip_fixed  
+      user        = var.superuser_username
+      password    = var.superuser_password
+      private_key = file(var.pvt_key_file)
+    }
+  }
+}
+
+
+resource "null_resource" "restart_vm_after_script" {
+  depends_on = [null_resource.copy_waybar_folder]
+  provisioner "remote-exec" {
+    connection {
+      target_platform = "unix"
+      type            = "ssh"
+      host            = local.host_ip_fixed
+      user            = var.superuser_username
+      password        = var.superuser_password
+      private_key = file("${var.pvt_key_file}")
+      agent = false
+      timeout = "4m"
+    }
+    inline = [
+      <<-EOF
+      sudo reboot
+      EOF
+    ]
+  }
+}
+
+output "vm1_fixed_ip_address" {
+  value = module.archlinux-cli.ip_fixed
 }
 
 output "vm1_ip_address" {
@@ -76,5 +166,5 @@ output "vm1_ip_address" {
 }
 
 output "script_output" {
-    value = null_resource.call_custom_script.*.triggers
+    value = null_resource.copy_hyprland_config.*.triggers
 }
