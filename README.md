@@ -59,6 +59,7 @@ If you need step-by-step execution details:
         - [https://wiki.archlinux.org/title/Cloud-init](https://wiki.archlinux.org/title/Cloud-init)
         - [https://docs.cloud-init.io/en/latest/index.html](https://docs.cloud-init.io/en/latest/index.html)
         - [https://docs.cloud-init.io/en/latest/reference/examples.html#including-users-and-groups](https://docs.cloud-init.io/en/latest/reference/examples.html#including-users-and-groups)
+    - To substitute cloud-init functionality, custom scripts have been added and assumptions made about fixed ipv4.
 
 ## Usage 
 1. Preparing for Image Build
@@ -93,10 +94,16 @@ If you need step-by-step execution details:
         packer build -var-file vars/archlinux.actual.pkrvars.hcl -var-file vars/generated-archlinux-vars.pkrvars.hcl -var "proxmox_api_password=Password#01" .
         ```
     1. The Image (KVM Template) should now be ready on the Proxmox server.
----
-## Following is ToDo. Not Implemented Yet.
 1. VM Instance Creation - Using Terraform
-    1. Change Directory into ../tfmod-proxmox-kvm-archlinux-cli/examples/<<any-one>>
+    1. Examples Included:
+        1. BASH-AHC
+            - It is bash script that installs an Application from Git Repo.
+        1. Hyprland-Desktop
+            - It is a minimal Wayland based Hyprland Minimal/Starter GUI.
+            - <image src="tfmod-proxmox-kvm-archLinux-cli/examples/hyprland-desktop/images/hyprland-desktop.png" width="800" height="450"></image>
+    1. Change Directory into ../tfmod-proxmox-kvm-archlinux-cli/examples/<<any-one>>  
+    OR  
+    Create a similar to example-folder anywhere on your computer. Module can be linked via URL, you do not need to manually download it.  
         ```
         cd ../tf-proxmox-kvm-archlinux-cli/examples/bash-ahc
         ```
